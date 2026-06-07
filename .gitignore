@@ -1,0 +1,19 @@
+# --- Private learning layer (never ship) ---
+/LEARNING.md
+/notes/
+/CLAUDE.md
+
+# --- Isaac Lab clone (pulled at setup, pinned version) ---
+/_isaaclab/
+
+# --- Generated artifacts ---
+/outputs/
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# --- Editor / OS noise ---
+.vscode/
+.idea/
+.DS_Store
