@@ -1,0 +1,3 @@
+# Isaac Lab + its RL libraries are installed inside the Docker image, not here.
+# This file holds only light host-side tooling for the custom task code.
+tensorboard
