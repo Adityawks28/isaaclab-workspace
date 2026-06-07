@@ -1,15 +1,17 @@
 # Manipulation RL — Franka Reach (Isaac Lab) — Design
 
 **Date:** 2026-06-07
-**Local dir:** `~/robot-manipulation-lab`  ·  **GitHub repo:** `isaaclab-franka-manipulation`
+**Local dir:** `~/isaaclab-workspace`  ·  **GitHub repo:** `isaaclab-workspace`
 **Status:** Approved design → ready for implementation planning
 
 ## Purpose
 
-A guided, fully-Dockerized reinforcement-learning project that trains a Franka
-arm on the **Reach** task in **Isaac Lab**, while doubling as a structured
-learning vehicle for Isaac Sim and RL. The project ships a clean, reproducible
-research repo to GitHub; the personal learning layer stays private and local.
+A general **Isaac Lab workspace** (`isaaclab-workspace`) that doubles as a
+structured learning vehicle for Isaac Sim and RL. The first milestone is
+training a Franka arm on the **Reach** task; the same workspace/infra hosts
+future robots and tasks (Isaac Lab ships Franka, UR10, ANYmal, humanoids,
+cartpole, etc.). The project ships a clean, reproducible research repo to
+GitHub; the personal learning layer stays private and local.
 
 Primary goal (user-stated): **learn Isaac Lab + RL by building**, with the
 assistant acting as research, coding, and study partner.
@@ -39,7 +41,7 @@ clean GitHub-shippable wrapper around it.
 ## Section 1 — Repo layout & ship/private split
 
 ```
-robot-manipulation-lab/                 ← git repo (pushed to GitHub)
+isaaclab-workspace/                     ← git repo (pushed to GitHub)
 ├── README.md              ship   Overview + setup/run instructions
 ├── .gitignore             ship   Enforces the ship/private split
 ├── requirements.txt       ship   Extra Python deps for our task code
