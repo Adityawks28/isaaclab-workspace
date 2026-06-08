@@ -13,6 +13,27 @@ else
     echo "Isaac Lab already cloned at ${ISAACLAB_DIR}."
 fi
 
+# 1b. Bind-mount our external task source into the container (idempotent).
+#     v2.1.0 has no DOCKER_VOLUMES knob, so we inject a bind into the shared
+#     volumes anchor of Isaac Lab's compose, right after its `tools` bind.
+COMPOSE="${ISAACLAB_DIR}/docker/docker-compose.yaml"
+if ! grep -q "isaaclab-workspace/source" "${COMPOSE}"; then
+    echo "Injecting workspace bind mount into Isaac Lab compose..."
+    python3 - "${COMPOSE}" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path).read()
+anchor = ("  - type: bind\n"
+          "    source: ../tools\n"
+          "    target: ${DOCKER_ISAACLAB_PATH}/tools\n")
+inject = anchor + ("  - type: bind\n"
+                   "    source: ../../source\n"
+                   "    target: /workspace/isaaclab-workspace/source\n")
+assert anchor in text, "tools bind anchor not found; Isaac Lab compose layout changed"
+open(path, "w").write(text.replace(anchor, inject, 1))
+PY
+fi
+
 # 2. Confirm the Isaac Sim base image is present (pull if missing).
 if ! docker image inspect "${ISAACSIM_BASE_IMAGE}" >/dev/null 2>&1; then
     echo "Pulling base image ${ISAACSIM_BASE_IMAGE} (large)..."
@@ -34,5 +55,10 @@ docker exec "${ISAACLAB_CONTAINER}" bash -lc "cd /workspace/isaaclab && \
     ./isaaclab.sh -p -m pip install --no-build-isolation flatdict==4.0.1 && \
     ./isaaclab.sh --install && \
     ./isaaclab.sh -p -m pip install 'numpy==1.26.4'"
+
+# 5. Install our external custom task (editable) into the container's python.
+echo "Installing custom task (reach_franka) inside the container..."
+docker exec "${ISAACLAB_CONTAINER}" bash -lc "cd /workspace/isaaclab && \
+    ./isaaclab.sh -p -m pip install -e /workspace/isaaclab-workspace/source/reach_franka"
 
 echo "Setup complete. Train with: ./scripts/train.sh   (GUI eval: ./scripts/eval.sh)"

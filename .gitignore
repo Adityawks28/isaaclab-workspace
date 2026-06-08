@@ -17,3 +17,7 @@ __pycache__/
 .vscode/
 .idea/
 .DS_Store
+
+# Python build artifacts (editable installs write these via the bind mount)
+*.egg-info/
+__pycache__/
