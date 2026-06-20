@@ -25,6 +25,13 @@ def register():
     if "Isaac-Lift-Cube-Franka-Custom-v0" in registry:
         return
 
+    # Reuse the built-in Franka Lift rsl_rl PPO runner cfg for both variants
+    # (verified class name in Isaac Lab v2.1.0: LiftCubePPORunnerCfg).
+    runner = (
+        "isaaclab_tasks.manager_based.manipulation.lift.config.franka."
+        "agents.rsl_rl_ppo_cfg:LiftCubePPORunnerCfg"
+    )
+
     gym_register(
         id="Isaac-Lift-Cube-Franka-Custom-v0",
         entry_point="isaaclab.envs:ManagerBasedRLEnv",
@@ -32,11 +39,17 @@ def register():
         kwargs={
             # String entry points only — resolved lazily after the app boots.
             "env_cfg_entry_point": "lift_franka.lift_env_cfg:FrankaCubeLiftCustomEnvCfg",
-            # Reuse the built-in Franka Lift rsl_rl PPO runner cfg
-            # (verified class name in Isaac Lab v2.1.0: LiftCubePPORunnerCfg).
-            "rsl_rl_cfg_entry_point": (
-                "isaaclab_tasks.manager_based.manipulation.lift.config.franka."
-                "agents.rsl_rl_ppo_cfg:LiftCubePPORunnerCfg"
-            ),
+            "rsl_rl_cfg_entry_point": runner,
+        },
+    )
+
+    # Stock 0.04 gate + receding-goal curriculum (targets carry-to-goal; Ch. 10).
+    gym_register(
+        id="Isaac-Lift-Cube-Franka-Curriculum-v0",
+        entry_point="isaaclab.envs:ManagerBasedRLEnv",
+        disable_env_checker=True,
+        kwargs={
+            "env_cfg_entry_point": "lift_franka.lift_env_cfg:FrankaCubeLiftCurriculumEnvCfg",
+            "rsl_rl_cfg_entry_point": runner,
         },
     )
