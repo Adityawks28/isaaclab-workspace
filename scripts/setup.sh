@@ -56,9 +56,10 @@ docker exec "${ISAACLAB_CONTAINER}" bash -lc "cd /workspace/isaaclab && \
     ./isaaclab.sh --install && \
     ./isaaclab.sh -p -m pip install 'numpy==1.26.4'"
 
-# 5. Install our external custom task (editable) into the container's python.
-echo "Installing custom task (reach_franka) inside the container..."
+# 5. Install our external custom tasks (editable) into the container's python.
+echo "Installing custom tasks (reach_franka, lift_franka) inside the container..."
 docker exec "${ISAACLAB_CONTAINER}" bash -lc "cd /workspace/isaaclab && \
-    ./isaaclab.sh -p -m pip install -e /workspace/isaaclab-workspace/source/reach_franka"
+    ./isaaclab.sh -p -m pip install -e /workspace/isaaclab-workspace/source/reach_franka && \
+    ./isaaclab.sh -p -m pip install -e /workspace/isaaclab-workspace/source/lift_franka"
 
 echo "Setup complete. Train with: ./scripts/train.sh   (GUI eval: ./scripts/eval.sh)"
