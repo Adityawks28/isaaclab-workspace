@@ -17,6 +17,19 @@ the design and `docs/superpowers/plans/` for the implementation plan.
 > Full setup, training, and laptop↔workstation instructions are filled in as the
 > scripts land (see the implementation plan).
 
+## Results / demos
+
+Trained policies (rendered headlessly with `play.py --video`). Click to play.
+
+| Milestone | Demo | Status |
+|---|---|---|
+| **1 · Reach** | [`docs/media/01-reach-franka.mp4`](docs/media/01-reach-franka.mp4) | ✅ converged — the end-effector tracks randomly-placed target poses (≈0.12 m error) |
+| **2 · Lift (pick-and-place)** | [`docs/media/02-lift-franka-wip.mp4`](docs/media/02-lift-franka-wip.mp4) | 🚧 in progress — reliably reaches the cube and lifts intermittently; reliable grasp-and-carry needs workstation-scale envs (the pipeline works end-to-end) |
+
+All training here is **laptop-budget** (RTX 4050, 6 GB → 128 envs). Reach converges easily;
+contact-rich lifting is sample-hungry and plateaus on the laptop — see the parameter sweeps and
+the honest analysis behind these results in the (private) learning notes.
+
 ## Semi-autonomous mode (monitor + approve from your phone)
 
 Run Claude Code so it works the plan autonomously on this machine while you check in
