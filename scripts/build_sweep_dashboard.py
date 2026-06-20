@@ -88,7 +88,18 @@ def main():
             "pe_best": min(pe) if pe else 0,
             "lifted": (max(lift) if lift else 0) > 0.05 and final_lift > 0.02,
         }
-    blob = json.dumps({"data": data, "summary": summary})
+    # Iteration ablation: the winning 0.04 gate rerun for 4000 iters (3.3x longer).
+    ablation = {}
+    abl_path = REPO / "outputs" / "lift_004_long.log"
+    if abl_path.exists():
+        iters, series = parse_log(abl_path)
+        step = max(1, len(iters) // 400)
+        ablation = {
+            "iter": iters[::step],
+            "lifting": series["lifting"][::step],
+            "mean_reward": series["mean_reward"][::step],
+        }
+    blob = json.dumps({"data": data, "summary": summary, "ablation": ablation})
     html = TEMPLATE.replace("/*DATA*/", blob)
     out = REPO / "docs" / "learning" / "lift-gate-sweep-dashboard.html"
     out.write_text(html)
@@ -179,6 +190,14 @@ TEMPLATE = r"""<!DOCTYPE html>
     <div class="chartbox"><h4>Reaching &#8212; <code>reaching_object</code> reward</h4><div class="sub">stage 1: finding/approaching the cube</div><svg id="c_reaching" viewBox="0 0 460 220"></svg></div>
   </div>
 
+  <h2>Does more training help? &#8212; iteration ablation</h2>
+  <p class="mut">We reran the winning <b>0.04</b> gate for <b>4000 iterations</b> (3.3&#215; longer, same seed/envs) to test whether the intermittent lifting was just sample starvation on the laptop. The lift curve plateaus &#8212; more time did <em>not</em> buy more lifting.</p>
+  <div class="grid2">
+    <div class="chartbox"><h4>0.04 gate &#8212; <code>lifting_object</code> over 4000 iters</h4><div class="sub">rises early, then flat: the bottleneck is structural, not duration</div><svg id="c_abl_lift" viewBox="0 0 460 220"></svg></div>
+    <div class="chartbox"><h4>0.04 gate &#8212; mean reward over 4000 iters</h4><div class="sub">longer run avoids the late collapse (more stable) but no better at the task</div><svg id="c_abl_rew" viewBox="0 0 460 220"></svg></div>
+  </div>
+  <div class="note" id="ablnote"></div>
+
   <h2>What it means</h2>
   <div class="note" id="interp"></div>
 
@@ -255,11 +274,31 @@ function drawChart(id,key,opts){
   GATES.forEach(g=>{if(!shown[g])return;const xs=DATA[g].iter,ys=ema(DATA[g][key],beta);let pts='';for(let i=0;i<xs.length;i++){if(ys[i]==null)continue;pts+=(pts?' ':'')+X(xs[i]).toFixed(1)+','+Y(ys[i]).toFixed(1);}s+='<polyline fill="none" stroke="'+COLORS[g]+'" stroke-width="2" points="'+pts+'"/>';});
   svg.innerHTML=s;
 }
+const ABL = PAYLOAD.ablation || {};
+function drawAbl(id,key,color,opts){
+  opts=opts||{};const svg=document.getElementById(id);if(!ABL.iter){svg.innerHTML='';return;}
+  const W=460,H=220,pl=44,pr=12,pb=26,pt=12;
+  const xs=ABL.iter, ys=ema(ABL[key],beta);
+  let lo=Infinity,hi=-Infinity;ys.forEach(v=>{if(v==null)return;if(v<lo)lo=v;if(v>hi)hi=v;});
+  if(lo===Infinity){svg.innerHTML='';return;}
+  if(opts.zeroFloor&&lo>0)lo=0;const pad=(hi-lo)*0.08||0.1;lo-=pad;hi+=pad;
+  const maxIt=xs[xs.length-1];const X=it=>pl+(it/maxIt)*(W-pl-pr);const Y=v=>pt+(1-(v-lo)/(hi-lo))*(H-pt-pb);
+  let s='';
+  for(let k=0;k<=3;k++){const yv=lo+(hi-lo)*k/3;const y=Y(yv);s+='<line x1="'+pl+'" y1="'+y+'" x2="'+(W-pr)+'" y2="'+y+'" stroke="#1c2430"/>';s+='<text x="'+(pl-5)+'" y="'+(y+3)+'" fill="#6e7781" font-size="9" text-anchor="end">'+yv.toFixed(2)+'</text>';}
+  if(maxIt>1200){const px=X(1200);s+='<line x1="'+px+'" y1="'+pt+'" x2="'+px+'" y2="'+(H-pb)+'" stroke="#9aa7b4" stroke-dasharray="3 3" opacity="0.55"/>';s+='<text x="'+(px+3)+'" y="'+(pt+10)+'" fill="#9aa7b4" font-size="8.5">1200 (sweep budget)</text>';}
+  s+='<text x="'+pl+'" y="'+(H-7)+'" fill="#6e7781" font-size="9">0</text><text x="'+(W-pr)+'" y="'+(H-7)+'" fill="#6e7781" font-size="9" text-anchor="end">'+maxIt+' iters</text>';
+  let pts='';for(let i=0;i<xs.length;i++){if(ys[i]==null)continue;pts+=(pts?' ':'')+X(xs[i]).toFixed(1)+','+Y(ys[i]).toFixed(1);}
+  s+='<polyline fill="none" stroke="'+color+'" stroke-width="2" points="'+pts+'"/>';
+  svg.innerHTML=s;
+}
+document.getElementById('ablnote').innerHTML='The dashed line marks 1200 iterations (the sweep budget). Past it, <code>lifting_object</code> stays flat for ~2800 more iterations &#8212; the policy converged early to &#8220;lifts intermittently, rarely carries&#8221; and stayed there. <b>The laptop budget plateaus regardless of training time.</b> Reliable lifting needs a structural change: many more parallel envs (workstation, Ch. 06 &#167;9) or a curriculum that starts the object/goal close and recedes them (Ch. 10) &#8212; not just more iterations.';
 function draw(){
   drawChart('c_lifting','lifting',{zeroFloor:true});
   drawChart('c_mean_reward','mean_reward',{});
   drawChart('c_position_error','position_error',{});
   drawChart('c_reaching','reaching',{zeroFloor:true});
+  drawAbl('c_abl_lift','lifting','#7ee787',{zeroFloor:true});
+  drawAbl('c_abl_rew','mean_reward','#58a6ff',{});
 }
 draw();
 </script>
