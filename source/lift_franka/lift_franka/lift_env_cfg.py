@@ -15,10 +15,12 @@ Verified against Isaac Lab v2.1.0:
 
 from isaaclab.utils import configclass
 
+import isaaclab.sim as sim_utils
 from isaaclab.envs import mdp as envs_mdp
 from isaaclab.managers import CurriculumTermCfg as CurrTerm
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import SceneEntityCfg
+from isaaclab.sensors import CameraCfg
 from isaaclab_tasks.manager_based.manipulation.lift.config.franka.joint_pos_env_cfg import (
     FrankaCubeLiftEnvCfg,
 )
@@ -27,7 +29,7 @@ from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import (
     EventCfg as BaseLiftEventCfg,
 )
 
-from. import curriculums as custom_curr
+from . import curriculums as custom_curr
 
 # The new lift threshold (metres). Built-in default is 0.04.
 NEW_MINIMAL_HEIGHT = 0.08
@@ -150,5 +152,37 @@ class FrankaCubeLiftGraspEnvCfg(FrankaCubeLiftEnvCfg):
         # Override the cube's physics material with high friction.
         self.events = GraspFriendlyEventCfg()
         # Zoomed camera for eval/recording.
+        self.viewer.eye = (1.8, 1.8, 1.2)
+        self.viewer.lookat = (0.35, 0.0, 0.15)
+
+
+@configclass
+class FrankaCubeLiftCameraEnvCfg(FrankaCubeLiftEnvCfg):
+    """Lift env with a wrist RGB camera, the vision front-end for a VLA (Milestone 3a).
+
+    A VLA reads camera images, not state vectors. This adds a 224x224 wrist camera so
+    each step renders an RGB frame the policy (or VLA) can consume. Grab it in the play
+    loop via env.unwrapped.scene["wrist_cam"].data.output["rgb"]. Camera params copied
+    from Isaac Lab's stack visuomotor reference. Run with --enable_cameras.
+    """
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.scene.wrist_cam = CameraCfg(
+            prim_path="{ENV_REGEX_NS}/Robot/panda_hand/wrist_cam",
+            update_period=0.0,
+            height=224,
+            width=224,
+            data_types=["rgb"],
+            spawn=sim_utils.PinholeCameraCfg(
+                focal_length=24.0, focus_distance=400.0, horizontal_aperture=20.955, clipping_range=(0.1, 2.0)
+            ),
+            offset=CameraCfg.OffsetCfg(
+                pos=(0.13, 0.0, -0.15), rot=(-0.70614, 0.03701, 0.03701, -0.70614), convention="ros"
+            ),
+        )
+        # Camera rendering settings (re-render after reset; cheaper antialiasing).
+        self.rerender_on_reset = True
+        self.sim.render.antialiasing_mode = "OFF"
         self.viewer.eye = (1.8, 1.8, 1.2)
         self.viewer.lookat = (0.35, 0.0, 0.15)

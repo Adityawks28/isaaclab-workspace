@@ -64,3 +64,14 @@ def register():
             "rsl_rl_cfg_entry_point": runner,
         },
     )
+
+    # Lift with a wrist RGB camera, the vision front-end for a VLA (Milestone 3a).
+    gym_register(
+        id="Isaac-Lift-Cube-Franka-Camera-v0",
+        entry_point="isaaclab.envs:ManagerBasedRLEnv",
+        disable_env_checker=True,
+        kwargs={
+            "env_cfg_entry_point": "lift_franka.lift_env_cfg:FrankaCubeLiftCameraEnvCfg",
+            "rsl_rl_cfg_entry_point": runner,
+        },
+    )
