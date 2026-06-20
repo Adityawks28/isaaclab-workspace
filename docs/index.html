@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>isaaclab-workspace · Franka RL from Reach to Pick-and-Place</title>
+<meta name="description" content="A fully-Dockerized Isaac Lab workspace for learning robot reinforcement learning — from Franka Reach to contact-rich pick-and-place.">
+<style>
+  :root{
+    --bg:#0b0e13; --bg2:#0e1116; --panel:#151b24; --panel2:#1b2230; --ink:#e9eef5; --mut:#9aa7b4;
+    --acc:#58a6ff; --acc2:#7ee787; --warn:#ffa657; --vio:#b794f6; --line:#262e3a; --code:#0a0d12;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16.5px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+  /* nav */
+  header.nav{position:sticky;top:0;z-index:10;background:rgba(11,14,19,.82);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line)}
+  header.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+  header.nav .brand{font-weight:800;letter-spacing:-.01em}
+  header.nav .links a{color:var(--mut);font-size:14px;margin-left:18px}
+  header.nav .links a:hover{color:var(--ink);text-decoration:none}
+  @media(max-width:620px){header.nav .links a:not(.gh){display:none}}
+  .gh{border:1px solid var(--line);padding:5px 12px;border-radius:8px;color:var(--ink)!important}
+  /* hero */
+  .hero{position:relative;text-align:center;padding:70px 0 34px;
+    background:radial-gradient(1100px 380px at 50% -8%, rgba(88,166,255,.10), transparent 60%),
+               radial-gradient(900px 360px at 50% 0%, rgba(126,231,135,.07), transparent 55%)}
+  .tag{display:inline-block;font-size:12.5px;color:var(--acc2);border:1px solid #234a2f;background:#0f2018;
+    padding:4px 12px;border-radius:999px;letter-spacing:.04em;margin-bottom:18px}
+  h1.title{font-size:46px;line-height:1.08;margin:.1em 0 .2em;letter-spacing:-.025em;font-weight:850}
+  h1.title .grad{background:linear-gradient(90deg,#7ee787,#58a6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.sub{color:var(--mut);font-size:19px;max-width:62ch;margin:0 auto 26px}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+  .btn{padding:11px 20px;border-radius:10px;font-size:14.5px;font-weight:600;border:1px solid var(--line)}
+  .btn.primary{background:linear-gradient(90deg,#1f6feb,#388bfd);color:#fff;border-color:transparent}
+  .btn.ghost{background:var(--panel);color:var(--ink)}
+  .btn:hover{text-decoration:none;transform:translateY(-1px)}
+  .badges{margin-top:18px;display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+  .badges img{height:20px}
+  /* gif strip */
+  .demos{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:34px 0 10px}
+  @media(max-width:680px){.demos{grid-template-columns:1fr}}
+  .demo{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .demo img{display:block;width:100%;background:#000}
+  .demo .cap{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;font-size:14px}
+  .demo .cap b{font-weight:700}
+  .pill{font-size:11.5px;padding:2px 9px;border-radius:999px}
+  .pill.ok{background:#13311f;color:#7ee787}.pill.wip{background:#33260f;color:#ffa657}
+  .demo .cap a{font-size:12.5px;color:var(--mut)}
+  /* sections */
+  section{padding:46px 0;border-top:1px solid var(--line)}
+  section h2{font-size:27px;letter-spacing:-.01em;margin:0 0 6px}
+  section .lead{color:var(--mut);margin:0 0 22px;max-width:74ch}
+  .eyebrow{color:var(--acc);font-weight:700;font-size:12.5px;letter-spacing:.13em;text-transform:uppercase}
+  /* stack diagram */
+  .stack{display:flex;flex-direction:column;gap:8px;max-width:560px}
+  .layer{border:1px solid var(--line);border-radius:11px;padding:13px 17px;background:var(--panel);display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .layer b{font-weight:700}.layer span{color:var(--mut);font-size:13px}
+  .layer.l1{border-color:#2f5c2f}.layer.l2{border-color:#3a4a66}.layer.l3{border-color:#4a3a66}.layer.l4{border-color:#5c4a2f}
+  .arrow{color:var(--mut);text-align:center;font-size:11px;letter-spacing:.2em}
+  /* feature cards */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:740px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .card .ic{font-size:20px}.card h3{margin:8px 0 5px;font-size:16px}.card p{margin:0;color:var(--mut);font-size:14px}
+  /* results */
+  .results{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.results{grid-template-columns:1fr}}
+  .res{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .res h3{margin:0 0 8px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+  .res .metric{font-family:"SF Mono",ui-monospace,Menlo,monospace;color:var(--acc2)}
+  .res ul{margin:8px 0 0;padding-left:18px;color:var(--mut);font-size:14px}
+  .res li{margin:4px 0}
+  /* table */
+  table{border-collapse:collapse;width:100%;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:10px 13px;text-align:left}
+  th{background:var(--panel);color:var(--acc)}
+  td code{background:var(--code);padding:.1em .4em;border-radius:5px;color:var(--acc2);font-size:.92em}
+  tbody tr:nth-child(even){background:#10151d}
+  /* roadmap */
+  .road{display:flex;flex-direction:column;gap:10px}
+  .ms{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .ms .dot{width:11px;height:11px;border-radius:50%;margin-top:7px;flex:none}
+  .ms.done .dot{background:var(--acc2)}.ms.now .dot{background:var(--warn)}.ms.next .dot{background:var(--mut)}
+  .ms b{font-size:15px}.ms p{margin:3px 0 0;color:var(--mut);font-size:13.5px}
+  footer{padding:40px 0 70px;border-top:1px solid var(--line);color:var(--mut);font-size:13.5px;text-align:center}
+  footer a{color:var(--mut)}footer .built{margin-bottom:8px}
+  .mono{font-family:"SF Mono",ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body>
+
+<header class="nav"><div class="wrap">
+  <div class="brand">🦾 isaaclab-workspace</div>
+  <nav class="links">
+    <a href="#workflow">Workflow</a>
+    <a href="#demos">Demos</a>
+    <a href="#results">Results</a>
+    <a href="#tasks">Tasks</a>
+    <a class="gh" href="https://github.com/Adityawks28/isaaclab-workspace">GitHub ↗</a>
+  </nav>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <span class="tag">Isaac Sim 4.5 · Isaac Lab v2.1 · PPO (rsl_rl)</span>
+  <h1 class="title">Franka RL, <span class="grad">Reach → Pick-and-Place</span></h1>
+  <p class="sub">A fully-Dockerized Isaac Lab workspace for learning robot reinforcement learning — train a Franka arm, watch it, and run controlled experiments, all on a 6&nbsp;GB laptop.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/Adityawks28/isaaclab-workspace">View on GitHub</a>
+    <a class="btn ghost" href="#demos">Watch demos</a>
+    <a class="btn ghost" href="#workflow">How it works</a>
+  </div>
+  <div class="badges">
+    <img alt="Isaac Sim" src="https://img.shields.io/badge/Isaac%20Sim-4.5.0-76B900?logo=nvidia&logoColor=white">
+    <img alt="Isaac Lab" src="https://img.shields.io/badge/Isaac%20Lab-v2.1.0-1f6feb">
+    <img alt="Python" src="https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white">
+    <img alt="Docker" src="https://img.shields.io/badge/runtime-Docker-2496ED?logo=docker&logoColor=white">
+  </div>
+
+  <div class="demos" id="demos-top">
+    <div class="demo">
+      <img src="media/reach.gif" alt="Franka Reach policy">
+      <div class="cap"><b>Reach</b> <span class="pill ok">✅ converged</span></div>
+    </div>
+    <div class="demo">
+      <img src="media/lift.gif" alt="Franka Lift policy">
+      <div class="cap"><b>Lift · pick-and-place</b> <span class="pill wip">🚧 in progress</span></div>
+    </div>
+  </div>
+</div></div>
+
+<section id="overview"><div class="wrap">
+  <div class="eyebrow">Overview</div>
+  <h2>Learn RL by building — the build is the curriculum</h2>
+  <p class="lead">Everything runs in Docker (no local install), built <b>FROM</b> the official Isaac Sim image with Isaac Lab + RL libraries layered on top. Custom tasks live in this repo as pip-installable gymnasium plugins, so the stock training and play scripts pick them up <b>without ever editing Isaac Lab</b>. The first milestone is a converged Reach policy; the second carries it into contact-rich pick-and-place — with honest, experiment-driven analysis at every step.</p>
+  <div class="cards">
+    <div class="card"><div class="ic">🐳</div><h3>Zero local install</h3><p>One script clones + pins Isaac Lab and builds the image, reusing warm caches.</p></div>
+    <div class="card"><div class="ic">🧩</div><h3>Tasks as plugins</h3><p>Registered via a gymnasium entry point — Isaac Lab itself is never touched.</p></div>
+    <div class="card"><div class="ic">🔬</div><h3>Experiment-driven</h3><p>Reward, lift-gate, curriculum &amp; friction sweeps, each with an interactive dashboard.</p></div>
+    <div class="card"><div class="ic">💻</div><h3>Laptop-friendly</h3><p>Laptop-safe <span class="mono">--num_envs</span>; headless train, GUI eval, workstation sync over Tailscale.</p></div>
+    <div class="card"><div class="ic">📱</div><h3>Semi-autonomous</h3><p>Drive the whole loop from your phone; the GPU never leaves the machine.</p></div>
+    <div class="card"><div class="ic">📊</div><h3>Honest results</h3><p>Weight-independent success metrics — no cherry-picking the reward number.</p></div>
+  </div>
+</div></section>
+
+<section id="workflow"><div class="wrap">
+  <div class="eyebrow">How it works</div>
+  <h2>One command, four cooperating layers</h2>
+  <p class="lead">Approach A — Isaac Lab's official Docker tooling builds an image from the Isaac Sim base; our task is the thin top layer we iterate on. Read top-down, the stack is also the train/eval pipeline.</p>
+  <div class="stack">
+    <div class="layer l1"><b>Our task + PPO</b> <span>reward, observations, rsl_rl — what we edit daily</span></div>
+    <div class="arrow">▲ on ▲</div>
+    <div class="layer l2"><b>Isaac Lab v2.1</b> <span>RL env: managers, parallel envs, gym API</span></div>
+    <div class="arrow">▲ on ▲</div>
+    <div class="layer l3"><b>Isaac Sim 4.5</b> <span>GPU PhysX, the Franka, the cube, contacts</span></div>
+    <div class="arrow">▲ on ▲</div>
+    <div class="layer l4"><b>Omniverse Kit</b> <span>app engine, renderer, headless mode</span></div>
+  </div>
+  <p class="lead" style="margin-top:22px">Train headless on the laptop (or a workstation), then watch the policy in the Isaac Sim GUI — or render it to video, exactly like the clips above:</p>
+  <table>
+    <tr><th>Step</th><th>Command</th></tr>
+    <tr><td>Set up (once)</td><td><code>./scripts/setup.sh</code></td></tr>
+    <tr><td>Train (headless)</td><td><code>./scripts/train.sh --task &lt;id&gt; --num_envs 128</code></td></tr>
+    <tr><td>Watch (GUI)</td><td><code>./scripts/eval.sh --task &lt;id&gt;</code></td></tr>
+  </table>
+</div></section>
+
+<section id="demos"><div class="wrap">
+  <div class="eyebrow">Demos</div>
+  <h2>Trained policies, rendered from sim</h2>
+  <p class="lead">Rendered headlessly with <span class="mono">play.py --video</span>. The GIFs loop above; full-resolution clips below.</p>
+  <div class="results">
+    <div class="res">
+      <h3>Reach <span class="pill ok">converged</span></h3>
+      <p style="color:var(--mut);margin:0 0 6px">The end-effector tracks a randomly-placed target pose that resets each episode.</p>
+      <a href="media/01-reach-franka.mp4">▶ full video (mp4)</a>
+    </div>
+    <div class="res">
+      <h3>Lift <span class="pill wip">in progress</span></h3>
+      <p style="color:var(--mut);margin:0 0 6px">Grasp a cube and carry it to a goal. Reliable reach + intermittent lift; the pipeline is end-to-end.</p>
+      <a href="media/02-lift-franka-wip.mp4">▶ full video (mp4)</a>
+    </div>
+  </div>
+</div></section>
+
+<section id="results"><div class="wrap">
+  <div class="eyebrow">Results &amp; findings</div>
+  <h2>What the experiments actually showed</h2>
+  <p class="lead">Controlled studies on the laptop (RTX 4050, 6 GB → 128 envs), fixed seed + budget, compared on weight-independent metrics.</p>
+  <div class="results">
+    <div class="res">
+      <h3>Reach <span class="metric">≈ 0.12 m</span></h3>
+      <ul>
+        <li>Converges easily; a reward-weight sweep showed weights set <i>priorities</i>, not absolute quality.</li>
+        <li>Position-tracking error of ~0.12 m end-to-end.</li>
+      </ul>
+    </div>
+    <div class="res">
+      <h3>Lift <span class="metric">bottleneck found</span></h3>
+      <ul>
+        <li>Lift-gate sweep: only the easy gate sustains lifting.</li>
+        <li>More iterations plateau; a goal curriculum doesn't help.</li>
+        <li>Diagnosis: the limiter is <b>grasp reliability</b>, not goal distance — workstation-scale parallelism is the next lever.</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section id="tasks"><div class="wrap">
+  <div class="eyebrow">Tasks</div>
+  <h2>Custom tasks registered by this repo</h2>
+  <p class="lead">In addition to all of Isaac Lab's built-ins, each registered as a gymnasium plugin.</p>
+  <table>
+    <tr><th>Gym ID</th><th>What it is</th></tr>
+    <tr><td><code>Isaac-Reach-Franka-Custom-v0</code></td><td>Franka Reach with a tuned end-effector tracking reward</td></tr>
+    <tr><td><code>Isaac-Lift-Cube-Franka-Custom-v0</code></td><td>Pick-and-place with a raised lift gate</td></tr>
+    <tr><td><code>Isaac-Lift-Cube-Franka-Curriculum-v0</code></td><td>Lift + a receding-goal curriculum</td></tr>
+    <tr><td><code>Isaac-Lift-Cube-Franka-Grasp-v0</code></td><td>Lift + a high-friction cube (grasp reliability)</td></tr>
+  </table>
+</div></section>
+
+<section id="roadmap"><div class="wrap">
+  <div class="eyebrow">Roadmap</div>
+  <h2>Where it's going</h2>
+  <div class="road">
+    <div class="ms done"><div class="dot"></div><div><b>Milestone 1 — Reach ✅</b><p>Converges; end-effector tracking ≈ 0.12 m.</p></div></div>
+    <div class="ms now"><div class="dot"></div><div><b>Milestone 2 — Pick-and-place 🚧</b><p>Pipeline works end-to-end; reliable grasp-and-carry needs more parallel envs.</p></div></div>
+    <div class="ms next"><div class="dot"></div><div><b>Milestone 3 — VLA</b><p>Run a pretrained vision-language-action model in sim; use sim as a data factory.</p></div></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="built">Built on
+    <a href="https://developer.nvidia.com/isaac-sim">Isaac Sim</a> ·
+    <a href="https://github.com/isaac-sim/IsaacLab">Isaac Lab</a> ·
+    <a href="https://github.com/leggedrobotics/rsl_rl">rsl_rl</a> ·
+    <a href="https://gymnasium.farama.org/">gymnasium</a>
+  </div>
+  <div><a href="https://github.com/Adityawks28/isaaclab-workspace">github.com/Adityawks28/isaaclab-workspace</a></div>
+</div></footer>
+
+</body>
+</html>
