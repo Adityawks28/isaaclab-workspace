@@ -232,7 +232,7 @@
   <div class="kicker">Demos</div>
   <h2>Trained policies, rendered from sim</h2>
   <p class="lead">Rendered headlessly with <span class="mono" style="color:var(--green-d)">play.py --video</span>. Clips loop automatically; use the controls to scrub.</p>
-  <div class="two-card">
+  <div class="two-card" style="grid-template-columns:1fr">
     <div class="vcard">
       <video autoplay loop muted playsinline controls poster="media/reach-thumb.jpg"><source src="media/01-reach-franka.mp4" type="video/mp4"></video>
       <div class="vbody">
@@ -247,15 +247,16 @@
       </div>
     </div>
     <div class="vcard">
-      <video autoplay loop muted playsinline controls poster="media/lift-thumb.jpg"><source src="media/02-lift-franka-wip.mp4" type="video/mp4"></video>
+      <video autoplay loop muted playsinline controls poster="media/lift-sidebyside-thumb.jpg" style="aspect-ratio:964/302"><source src="media/lift-sidebyside.mp4" type="video/mp4"></video>
       <div class="vbody">
-        <div class="vtop"><h3>Lift · pick-and-place</h3><span class="tag wip">In progress</span></div>
+        <div class="vtop"><h3>Lift · pick-and-place &nbsp;<span style="font-weight:400;color:var(--mut);font-size:14px">— more compute, same result</span></h3><span class="tag wip">In progress</span></div>
         <dl class="vinfo">
-          <dt>Does</dt><dd>Reaches a cube, closes the gripper, and tries to lift &amp; carry it to a goal.</dd>
+          <dt>Does</dt><dd>Reaches a cube, closes the gripper, and tries to lift and carry it to a goal.</dd>
           <dt>Target</dt><dd>Grasp the cube, lift it past a height gate, deliver it to a commanded goal pose.</dd>
-          <dt>Workflow</dt><dd>PPO · obs adds the object + goal · action = 7 joints + a binary gripper · staged gated reward (reach → lift → carry) · 128 to 256 envs.</dd>
-          <dt>Result</dt><dd><b>Reliably reaches; lifts intermittently, rarely carries.</b> The bottleneck is grasp reliability, not goal distance.</dd>
-          <dt>Improve</dt><dd>More parallel envs for grasp exploration (a 256-env run is training now); ultimately demonstrations / a VLA (Milestone 3).</dd>
+          <dt>Workflow</dt><dd>PPO · obs adds the object + goal · action = 7 joints + a binary gripper · staged gated reward.</dd>
+          <dt>Compare</dt><dd>Both arms above run the same task. <b>Left: 128 envs, 4000 iters. Right: 256 envs, 8000 iters</b> (about 5x the compute). The behavior is the same.</dd>
+          <dt>Result</dt><dd><b>Reliably reaches; lifts intermittently, rarely carries.</b> Scaling envs and iterations did not break the plateau, so a bigger training budget is not what is missing.</dd>
+          <dt>Improve</dt><dd>The limiter is grasp reliability, not compute. The fix is demonstrations or a pretrained VLA (Milestone 3), not more RL on this laptop.</dd>
         </dl>
       </div>
     </div>
