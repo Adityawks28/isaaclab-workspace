@@ -311,6 +311,13 @@
       </ul>
     </div>
   </div>
+  <div class="rc" style="margin-top:18px;border-color:#cfe9d4;background:var(--green-bg)">
+    <div class="h"><h3>Milestone 3a: Vision-Language-Action (started)</h3><span class="m">camera verified</span></div>
+    <ul>
+      <li><b>The vision front-end works on the laptop.</b> A camera-enabled Lift task renders a real 224&times;224 RGB frame every step, the input a VLA reads.</li>
+      <li><b>The VLA model runs on its own process or host.</b> The Isaac Sim container ships only its pinned Python, so the JAX-based model belongs in a separate process or on the workstation/cloud, not wedged into the sim runtime.</li>
+    </ul>
+  </div>
 </div></section>
 
 <section id="tasks"><div class="wrap">
@@ -324,6 +331,7 @@
       <tr><td><code>Isaac-Lift-Cube-Franka-Custom-v0</code></td><td>Pick-and-place with a raised lift gate</td></tr>
       <tr><td><code>Isaac-Lift-Cube-Franka-Curriculum-v0</code></td><td>Lift with a receding-goal curriculum</td></tr>
       <tr><td><code>Isaac-Lift-Cube-Franka-Grasp-v0</code></td><td>Lift with a high-friction cube (grasp reliability)</td></tr>
+      <tr><td><code>Isaac-Lift-Cube-Franka-Camera-v0</code></td><td>Lift with a 224&times;224 wrist RGB camera (vision front-end for a VLA)</td></tr>
     </table>
   </div>
 </div></section>
@@ -334,7 +342,7 @@
   <div class="road">
     <div class="ms done"><span class="dot"></span><div><b>Milestone 1: Reach</b><p>Converges; end-effector tracking ≈ 0.12&nbsp;m.</p></div></div>
     <div class="ms now"><span class="dot"></span><div><b>Milestone 2: Pick-and-place</b><p>Pipeline works end-to-end; reliable grasp-and-carry needs more parallel envs.</p></div></div>
-    <div class="ms"><span class="dot"></span><div><b>Milestone 3: Vision-Language-Action</b><p>Run a pretrained VLA in sim; use simulation as a data factory.</p></div></div>
+    <div class="ms now"><span class="dot"></span><div><b>Milestone 3: Vision-Language-Action</b><p>Started (3a): the camera vision front-end renders RGB in sim, verified. The VLA model runs on its own process or host. Next: drive Octo, then fine-tune on sim demonstrations.</p></div></div>
   </div>
 </div></section>
 
