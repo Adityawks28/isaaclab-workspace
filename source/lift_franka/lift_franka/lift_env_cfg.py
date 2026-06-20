@@ -15,12 +15,16 @@ Verified against Isaac Lab v2.1.0:
 
 from isaaclab.utils import configclass
 
+from isaaclab.envs import mdp as envs_mdp
 from isaaclab.managers import CurriculumTermCfg as CurrTerm
+from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab.managers import SceneEntityCfg
 from isaaclab_tasks.manager_based.manipulation.lift.config.franka.joint_pos_env_cfg import (
     FrankaCubeLiftEnvCfg,
 )
 from isaaclab_tasks.manager_based.manipulation.lift.lift_env_cfg import (
     CurriculumCfg as BaseLiftCurriculumCfg,
+    EventCfg as BaseLiftEventCfg,
 )
 
 from . import curriculums as custom_curr
@@ -105,5 +109,46 @@ class FrankaCubeLiftCurriculumEnvCfg(FrankaCubeLiftEnvCfg):
         # Widen the goal range in stages as the policy improves.
         self.curriculum = LiftRecedingGoalCurriculumCfg()
         # Zoomed camera for eval/recording (same as the custom task).
+        self.viewer.eye = (1.8, 1.8, 1.2)
+        self.viewer.lookat = (0.35, 0.0, 0.15)
+
+
+@configclass
+class GraspFriendlyEventCfg(BaseLiftEventCfg):
+    """Built-in reset events + a high-friction physics material on the cube.
+
+    The sweep/ablation/curriculum experiments converged on grasp reliability as the
+    real bottleneck (the cube is held only a small fraction of the time). Higher
+    friction widens the contact friction cone (Ch. 08), so the grasps that DO happen
+    slip less and hold — a direct physics lever on grasp reliability. Applied once at
+    startup via the supported material-randomization event (a point range = a constant).
+    """
+
+    object_friction = EventTerm(
+        func=envs_mdp.randomize_rigid_body_material,
+        mode="startup",
+        params={
+            "asset_cfg": SceneEntityCfg("object", body_names="Object"),
+            "static_friction_range": (2.0, 2.0),   # vs the DexCube's lower default
+            "dynamic_friction_range": (1.5, 1.5),
+            "restitution_range": (0.0, 0.0),
+            "num_buckets": 1,
+        },
+    )
+
+
+@configclass
+class FrankaCubeLiftGraspEnvCfg(FrankaCubeLiftEnvCfg):
+    """Stock 0.04 gate + a grippier cube (high friction) to test grasp reliability.
+
+    Isolates the friction variable: everything else matches the 0.04 baseline, so any
+    change in lifting_object / lift success is attributable to the friction cone.
+    """
+
+    def __post_init__(self):
+        super().__post_init__()
+        # Override the cube's physics material with high friction.
+        self.events = GraspFriendlyEventCfg()
+        # Zoomed camera for eval/recording.
         self.viewer.eye = (1.8, 1.8, 1.2)
         self.viewer.lookat = (0.35, 0.0, 0.15)

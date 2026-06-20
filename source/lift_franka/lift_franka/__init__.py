@@ -53,3 +53,14 @@ def register():
             "rsl_rl_cfg_entry_point": runner,
         },
     )
+
+    # Stock 0.04 gate + high-friction cube (targets grasp reliability; Ch. 08).
+    gym_register(
+        id="Isaac-Lift-Cube-Franka-Grasp-v0",
+        entry_point="isaaclab.envs:ManagerBasedRLEnv",
+        disable_env_checker=True,
+        kwargs={
+            "env_cfg_entry_point": "lift_franka.lift_env_cfg:FrankaCubeLiftGraspEnvCfg",
+            "rsl_rl_cfg_entry_point": runner,
+        },
+    )
