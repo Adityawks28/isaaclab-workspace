@@ -15,7 +15,10 @@
 #   CLAUDE_AUTO_BACKOFF   seconds to wait between relaunches (default: 300)
 set -uo pipefail
 
-PROJECT_DIR="${CLAUDE_AUTO_PROJECT:-/home/cll3/isaaclab-workspace}"
+# Default to the checkout/worktree this script lives in, so auto-prompt.md and the
+# plan/docs resolve correctly whether launched from the main repo or a git worktree.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="${CLAUDE_AUTO_PROJECT:-$(dirname "$SCRIPT_DIR")}"
 SESSION="claude-auto"
 BACKOFF="${CLAUDE_AUTO_BACKOFF:-300}"
 NAME="Franka Reach auto"
