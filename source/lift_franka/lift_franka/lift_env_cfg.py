@@ -39,3 +39,10 @@ class FrankaCubeLiftCustomEnvCfg(FrankaCubeLiftEnvCfg):
         self.rewards.lifting_object.params["minimal_height"] = NEW_MINIMAL_HEIGHT
         self.rewards.object_goal_tracking.params["minimal_height"] = NEW_MINIMAL_HEIGHT
         self.rewards.object_goal_tracking_fine_grained.params["minimal_height"] = NEW_MINIMAL_HEIGHT
+
+        # Closer camera for eval/recording. The built-in default (eye 7.5,7.5,7.5)
+        # frames the whole scene and renders the arm tiny; this zooms onto the
+        # workspace (robot base at the origin, cube ~[0.5, 0, 0.05], goal in front).
+        # Viewer-only: affects rendering, not training, physics, or the reward gate.
+        self.viewer.eye = (1.8, 1.8, 1.2)
+        self.viewer.lookat = (0.35, 0.0, 0.15)
