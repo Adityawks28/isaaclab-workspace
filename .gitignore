@@ -2,12 +2,18 @@
 /LEARNING.md
 /notes/
 /CLAUDE.md
+/docs/learning/*.html
+
+# --- Autonomous-session supervisor state (local) ---
+/.claude/.auto-started
+/.claude/settings.local.json
 
 # --- Isaac Lab clone (pulled at setup, pinned version) ---
 /_isaaclab/
 
 # --- Generated artifacts ---
 /outputs/
+/.understand-anything/
 __pycache__/
 *.pyc
 *.pyo

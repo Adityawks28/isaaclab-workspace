@@ -1,0 +1,32 @@
+# Optional systemd --user unit: starts the autonomous Claude supervisor at boot.
+#
+# Install (run as your normal user, not root):
+#   loginctl enable-linger "$USER"                 # let user services run without a login
+#   mkdir -p ~/.config/systemd/user
+#   cp scripts/claude-auto.service ~/.config/systemd/user/
+#   # adjust the tmux path below if `which tmux` differs from /usr/bin/tmux
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now claude-auto.service
+#
+# Watch it:   tmux attach -t claude-auto
+# Stop it:    systemctl --user stop claude-auto.service
+# Logs:       journalctl --user -u claude-auto.service -f
+#
+# It launches the supervisor inside tmux so the interactive `claude --remote-control`
+# session gets a real pty; auto.sh's own loop handles relaunch after limits/crashes.
+
+[Unit]
+Description=Autonomous Claude Code session (Franka Reach)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+Environment=CLAUDE_AUTO_PROJECT=/home/cll3/isaaclab-workspace
+ExecStart=/usr/bin/tmux new-session -d -s claude-auto '/home/cll3/isaaclab-workspace/scripts/auto.sh --inner'
+ExecStop=/usr/bin/tmux kill-session -t claude-auto
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target
