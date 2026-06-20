@@ -1,0 +1,16 @@
+[project]
+name = "reach_franka"
+version = "0.1.0"
+description = "Custom Franka Reach task for isaaclab-workspace"
+requires-python = ">=3.10"
+
+# Gymnasium discovers third-party envs via this entry point and calls the
+# function on `import gymnasium`. `__root__` registers ids in the root namespace
+# (so the id stays "Isaac-Reach-Franka-Custom-v0", unprefixed). This is what lets
+# Isaac Lab's stock train.py/play.py see our task without editing them.
+[project.entry-points."gymnasium.envs"]
+__root__ = "reach_franka:register"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"

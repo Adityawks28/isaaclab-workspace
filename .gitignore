@@ -1,0 +1,31 @@
+# --- Private learning layer (never ship) ---
+/LEARNING.md
+/notes/
+/CLAUDE.md
+/docs/learning/*.html
+
+# --- Autonomous-session supervisor (local tooling, not part of the project) ---
+/.claude/
+/scripts/auto.sh
+/scripts/auto-prompt.md
+/scripts/claude-auto.service
+
+# --- Isaac Lab clone (pulled at setup, pinned version) ---
+/_isaaclab/
+
+# --- Generated artifacts ---
+/outputs/
+/.understand-anything/
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# --- Editor / OS noise ---
+.vscode/
+.idea/
+.DS_Store
+
+# Python build artifacts (editable installs write these via the bind mount)
+*.egg-info/
+__pycache__/

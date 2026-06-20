@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>isaaclab-workspace: Franka RL from Reach to Pick-and-Place</title>
+<meta name="description" content="A fully-Dockerized Isaac Lab workspace for learning robot reinforcement learning, from Franka Reach to contact-rich pick-and-place. A CINAPS Lab project.">
+<meta property="og:title" content="isaaclab-workspace: Franka RL from Reach to Pick-and-Place">
+<meta property="og:description" content="A fully-Dockerized Isaac Lab workspace for robot RL, from Franka Reach to pick-and-place. A CINAPS Lab project.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://adityawks28.github.io/isaaclab-workspace/">
+<meta property="og:image" content="https://adityawks28.github.io/isaaclab-workspace/media/reach-thumb.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://adityawks28.github.io/isaaclab-workspace/media/reach-thumb.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#008A20; --green-d:#006b19; --green-bg:#f0f8f1;
+    --ink:#15181b; --body:#3d4248; --mut:#6b7280; --faint:#9aa1a8;
+    --bg:#ffffff; --bg2:#f7f8f7; --card:#ffffff; --line:#e6e8ea; --line2:#eef0f1;
+    --sans:"Inter",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--body);
+    font-family:var(--sans);font-size:16.5px;line-height:1.65;-webkit-font-smoothing:antialiased;
+    letter-spacing:-0.005em}
+  a{color:var(--green);text-decoration:none}a:hover{color:var(--green-d);text-decoration:underline}
+ .wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+  h1,h2,h3{color:var(--ink);font-weight:700;letter-spacing:-0.02em;line-height:1.18}
+ .mono{font-family:var(--mono)}
+  /* ---------- nav ---------- */
+  header.nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.86);backdrop-filter:saturate(1.6) blur(10px);border-bottom:1px solid var(--line)}
+  header.nav.wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+ .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--ink);font-size:16px;letter-spacing:-0.02em}
+ .brand svg{flex:none}
+  nav.links{display:flex;align-items:center;gap:26px}
+  nav.links a{color:var(--body);font-size:14.5px;font-weight:500}
+  nav.links a:hover{color:var(--green);text-decoration:none}
+  nav.links a.gh{color:#fff;background:var(--ink);padding:7px 15px;border-radius:7px;font-size:13.5px}
+  nav.links a.gh:hover{background:#000;text-decoration:none}
+  @media(max-width:680px){nav.links a:not(.gh){display:none}}
+  /* ---------- hero ---------- */
+ .hero{padding:78px 0 30px;text-align:center}
+ .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;
+    color:var(--green-d);background:var(--green-bg);border:1px solid #cfe9d4;padding:6px 14px;border-radius:99px;margin-bottom:26px}
+ .eyebrow.d{width:6px;height:6px;border-radius:50%;background:var(--green)}
+ .hero h1{font-size:clamp(34px,5.6vw,56px);font-weight:800;margin:0 0.3em;max-width:16ch;margin-left:auto;margin-right:auto}
+ .hero h1.g{color:var(--green)}
+ .hero p.sub{font-size:19px;color:var(--mut);max-width:60ch;margin:0 auto 30px}
+ .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+ .btn{font-size:14.5px;font-weight:600;padding:12px 22px;border-radius:9px;border:1px solid transparent;transition:.15s}
+ .btn.primary{background:var(--green);color:#fff}.btn.primary:hover{background:var(--green-d);text-decoration:none}
+ .btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}.btn.ghost:hover{border-color:var(--green);color:var(--green);text-decoration:none}
+ .metabar{display:flex;gap:30px;justify-content:center;flex-wrap:wrap;margin-top:30px;padding-top:22px;border-top:1px solid var(--line2);font-family:var(--mono);font-size:12.5px;color:var(--faint)}
+ .metabar b{color:var(--ink);font-weight:500}
+  /* demos */
+ .demos{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:40px 0 4px;text-align:left}
+  @media(max-width:680px){.demos{grid-template-columns:1fr}}
+ .demo{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card);transition:.18s}
+ .demo:hover{box-shadow:0 14px 34px -18px rgba(0,0,0,.18);transform:translateY(-2px)}
+ .demo img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#0f1216 center/cover no-repeat}
+ .demo.cap{display:flex;align-items:center;justify-content:space-between;padding:13px 16px}
+ .demo.cap b{color:var(--ink);font-weight:600;font-size:15px}
+ .tag{font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px}
+ .tag.ok{background:var(--green-bg);color:var(--green-d)}
+ .tag.wip{background:#fff5e8;color:#9a5b00}
+  /* CINAPS lab badge */
+ .lab{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--green-d);
+    background:var(--green-bg);border:1px solid #cfe9d4;padding:6px 14px;border-radius:99px}
+ .lab:hover{text-decoration:none;border-color:var(--green)}
+ .lab.arr{color:var(--green);font-weight:700}
+  /* inline video cards */
+ .vcard{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card);transition:.18s}
+ .vcard:hover{box-shadow:0 14px 34px -18px rgba(0,0,0,.18)}
+ .vcard video{display:block;width:100%;background:#000;aspect-ratio:16/9}
+ .vmeta{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:15px 18px}
+ .vmeta h3{font-size:16px;margin:0 0 3px}
+ .vmeta p{margin:0;color:var(--mut);font-size:13.5px}
+ .vmeta.m{font-family:var(--mono);font-size:13px;color:var(--green-d);white-space:nowrap;font-weight:500}
+ .vmeta.m.amb{color:#9a5b00}
+ .vbody{padding:17px 19px}
+ .vtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+ .vtop h3{margin:0;font-size:17px}
+ .vinfo{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:13.5px;line-height:1.5}
+ .vinfo dt{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--green-d);font-weight:500;padding-top:3px;white-space:nowrap}
+ .vinfo dd{margin:0;color:var(--body)}
+ .vinfo dd b{color:var(--ink);font-weight:600}
+  /* ---------- sections ---------- */
+  section{padding:62px 0;border-top:1px solid var(--line2)}
+ .kicker{font-family:var(--mono);font-size:12.5px;color:var(--green);font-weight:500;letter-spacing:.02em;margin-bottom:10px}
+  h2{font-size:clamp(24px,3.4vw,30px);margin:0 0 10px}
+ .lead{color:var(--mut);font-size:16.5px;max-width:70ch;margin:0 0 26px}
+  /* feature grid */
+ .feat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:740px){.feat{grid-template-columns:1fr}}
+ .f{border:1px solid var(--line);border-radius:13px;padding:22px;background:var(--card)}
+ .f.ic{width:38px;height:38px;border-radius:9px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;margin-bottom:13px;font-size:18px}
+ .f h3{font-size:16px;margin:0 0 6px}
+ .f p{margin:0;color:var(--mut);font-size:14.5px;line-height:1.55}
+  /* stack */
+ .two{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+ .stack{display:flex;flex-direction:column;gap:9px}
+ .layer{border:1px solid var(--line);border-left:3px solid var(--green);border-radius:9px;padding:13px 16px;background:var(--card)}
+ .layer b{color:var(--ink);font-weight:600;font-size:15px}
+ .layer span{color:var(--mut);font-size:13px;font-family:var(--mono);display:block;margin-top:2px}
+ .two.txt p{color:var(--body)}
+ .code{background:#0f1216;color:#e8eaed;border-radius:12px;padding:18px 20px;font-family:var(--mono);font-size:13px;line-height:1.7;overflow-x:auto;margin-top:24px}
+ .code.p{color:#7ee787}.code.c{color:#7c848d}
+  /* results */
+ .two-card{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:680px){.two-card{grid-template-columns:1fr}}
+ .rc{border:1px solid var(--line);border-radius:13px;padding:22px;background:var(--card)}
+ .rc.h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+ .rc h3{font-size:17px;margin:0}
+ .rc.m{font-family:var(--mono);font-weight:500;color:var(--green-d);font-size:14px}
+ .rc.m.amb{color:#9a5b00}
+ .rc ul{margin:0;padding-left:18px;color:var(--mut);font-size:14px}.rc li{margin:5px 0}
+  /* table */
+ .tbl{border:1px solid var(--line);border-radius:13px;overflow:hidden}
+  table{border-collapse:collapse;width:100%;font-size:14.5px}
+  th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line2)}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);background:var(--bg2);font-weight:600}
+  tr:last-child td{border-bottom:none}
+  td code{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--bg2);padding:2px 7px;border-radius:5px}
+  tbody tr:hover{background:var(--bg2)}
+  /* roadmap */
+ .road{display:flex;flex-direction:column;gap:12px}
+ .ms{display:flex;gap:16px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:16px 20px;background:var(--card)}
+ .ms.dot{width:12px;height:12px;border-radius:50%;margin-top:6px;flex:none;border:2px solid var(--line)}
+ .ms.done.dot{background:var(--green);border-color:var(--green)}
+ .ms.now.dot{background:#f0a500;border-color:#f0a500}
+ .ms b{color:var(--ink);font-size:15.5px}.ms p{margin:3px 0 0;color:var(--mut);font-size:14px}
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:40px 0 64px;color:var(--mut);font-size:14px}
+  footer.row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  footer a{color:var(--body)}footer a:hover{color:var(--green)}
+  footer.built{font-size:13.5px}
+</style>
+</head>
+<body>
+
+<header class="nav"><div class="wrap">
+  <div class="brand">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="#008A20" stroke-width="2"/><path d="M8 12.4L11 15.4L16.5 9" stroke="#008A20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    isaaclab-workspace
+  </div>
+  <nav class="links">
+    <a href="#system">System</a>
+    <a href="#demos">Demos</a>
+    <a href="#results">Results</a>
+    <a href="#tasks">Tasks</a>
+    <a href="https://cinapslab.com/" target="_blank" rel="noopener">CINAPS Lab&nbsp;↗</a>
+    <a class="gh" href="https://github.com/Adityawks28/isaaclab-workspace">GitHub</a>
+  </nav>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <div style="margin-bottom:16px"><a class="lab" href="https://cinapslab.com/" target="_blank" rel="noopener">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="#006b19" stroke-width="2.4"/><path d="M8 12.4L11 15.4L16.5 9" stroke="#006b19" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    A CINAPS Lab project <span class="arr">↗</span>
+  </a></div>
+  <span class="eyebrow"><span class="d"></span> Isaac Sim 4.5 · Isaac Lab v2.1 · PPO</span>
+  <h1>Franka RL, from <span class="g">Reach</span> to <span class="g">Pick-and-Place</span></h1>
+  <p class="sub">A fully-Dockerized Isaac Lab workspace for learning robot reinforcement learning. Train a Franka arm, watch it in simulation, and run controlled experiments, all on a 6&nbsp;GB laptop.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/Adityawks28/isaaclab-workspace">View on GitHub</a>
+    <a class="btn ghost" href="#demos">Watch demos</a>
+    <a class="btn ghost" href="#system">How it works</a>
+  </div>
+
+  <div class="demos">
+    <div class="demo">
+      <img src="media/reach.gif" loading="eager" alt="Franka Reach policy in Isaac Sim" style="background-image:url(media/reach-thumb.jpg)">
+      <div class="cap"><b>Reach</b><span class="tag ok">Converged</span></div>
+    </div>
+    <div class="demo">
+      <img src="media/lift.gif" loading="eager" alt="Franka Lift / pick-and-place policy in Isaac Sim" style="background-image:url(media/lift-thumb.jpg)">
+      <div class="cap"><b>Lift · pick-and-place</b><span class="tag wip">In progress</span></div>
+    </div>
+  </div>
+
+  <div class="metabar">
+    <span>Runtime&nbsp; <b>Docker</b></span>
+    <span>Agent&nbsp; <b>PPO · rsl_rl</b></span>
+    <span>GPU&nbsp; <b>RTX 4050 · 6 GB</b></span>
+    <span>Parallel envs&nbsp; <b>128</b></span>
+  </div>
+</div></div>
+
+<section id="system"><div class="wrap">
+  <div class="kicker">Overview</div>
+  <h2>Learn RL by building it</h2>
+  <p class="lead">Everything runs in Docker, built <b>FROM</b> the official Isaac Sim image with Isaac Lab and RL libraries layered on top. Custom tasks live in this repo as pip-installable gymnasium plugins, so the stock training and play scripts discover them without ever editing Isaac Lab. Every experiment ships with a self-contained, interactive dashboard, so nothing stays a black box.</p>
+  <div class="feat">
+    <div class="f"><div class="ic">🐳</div><h3>Zero local install</h3><p>One script clones and pins Isaac Lab and builds the image, reusing warm caches.</p></div>
+    <div class="f"><div class="ic">🧩</div><h3>Tasks as plugins</h3><p>Registered via a gymnasium entry point; the Isaac Lab source is never touched.</p></div>
+    <div class="f"><div class="ic">🔬</div><h3>Experiment-driven</h3><p>Reward, lift-gate, curriculum and friction sweeps, each with an interactive dashboard.</p></div>
+    <div class="f"><div class="ic">💻</div><h3>Laptop-friendly</h3><p>Laptop-safe env counts; headless training, GUI eval, and a laptop↔workstation flow.</p></div>
+    <div class="f"><div class="ic">📈</div><h3>Weight-independent metrics</h3><p>Every comparison uses weight-independent success metrics, never the raw reward.</p></div>
+    <div class="f"><div class="ic">🎥</div><h3>Watch in sim</h3><p>Render any checkpoint to video, or watch the policy live in the Isaac Sim viewer.</p></div>
+  </div>
+</div></section>
+
+<section id="arch"><div class="wrap">
+  <div class="kicker">Architecture</div>
+  <h2>One command, four cooperating layers</h2>
+  <div class="two">
+    <div class="stack">
+      <div class="layer"><b>Our task + PPO</b><span>reward · observations · rsl_rl</span></div>
+      <div class="layer"><b>Isaac Lab v2.1</b><span>RL env · managers · parallel envs · gym API</span></div>
+      <div class="layer"><b>Isaac Sim 4.5</b><span>GPU PhysX · Franka · cube · contacts</span></div>
+      <div class="layer"><b>Omniverse Kit</b><span>app engine · renderer · headless</span></div>
+    </div>
+    <div class="txt">
+      <p><b>Approach A.</b> Isaac Lab's Docker tooling builds an image from the Isaac Sim base; our task is the thin top layer we iterate on.</p>
+      <p>Read top-down, the stack is also the pipeline: a reward becomes a PPO update becomes a moving arm.</p>
+    </div>
+  </div>
+  <div class="code">
+    <div><span class="c"># set up once, then train &amp; watch</span></div>
+    <div><span class="p">$</span>./scripts/setup.sh <span class="c"># clone+pin Isaac Lab, build image, install tasks</span></div>
+    <div><span class="p">$</span>./scripts/train.sh --task &lt;id&gt; --num_envs 128 <span class="c"># headless PPO</span></div>
+    <div><span class="p">$</span>./scripts/eval.sh&nbsp; --task &lt;id&gt; <span class="c"># watch in the Isaac Sim GUI</span></div>
+  </div>
+</div></section>
+
+<section id="demos"><div class="wrap">
+  <div class="kicker">Demos</div>
+  <h2>Trained policies, rendered from sim</h2>
+  <p class="lead">Rendered headlessly with <span class="mono" style="color:var(--green-d)">play.py --video</span>. Clips loop automatically; use the controls to scrub.</p>
+  <div class="two-card">
+    <div class="vcard">
+      <video autoplay loop muted playsinline controls poster="media/reach-thumb.jpg"><source src="media/01-reach-franka.mp4" type="video/mp4"></video>
+      <div class="vbody">
+        <div class="vtop"><h3>Reach</h3><span class="tag ok">Converged</span></div>
+        <dl class="vinfo">
+          <dt>Does</dt><dd>Drives the arm's end-effector onto a target pose marker.</dd>
+          <dt>Target</dt><dd>A randomly-placed target position &amp; orientation that resets every episode.</dd>
+          <dt>Workflow</dt><dd>PPO (rsl_rl) · obs = joints + target + last action · action = 7 joint targets · reward = −distance · trained headless across ~256 parallel arms.</dd>
+          <dt>Result</dt><dd><b>Converges reliably</b>, about 0.12 m end-effector tracking error.</dd>
+          <dt>Improve</dt><dd>Already solid; orientation tracking could be tightened with reward re-weighting.</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="vcard">
+      <video autoplay loop muted playsinline controls poster="media/lift-thumb.jpg"><source src="media/02-lift-franka-wip.mp4" type="video/mp4"></video>
+      <div class="vbody">
+        <div class="vtop"><h3>Lift · pick-and-place</h3><span class="tag wip">In progress</span></div>
+        <dl class="vinfo">
+          <dt>Does</dt><dd>Reaches a cube, closes the gripper, and tries to lift &amp; carry it to a goal.</dd>
+          <dt>Target</dt><dd>Grasp the cube, lift it past a height gate, deliver it to a commanded goal pose.</dd>
+          <dt>Workflow</dt><dd>PPO · obs adds the object + goal · action = 7 joints + a binary gripper · staged gated reward (reach → lift → carry) · 128 to 256 envs.</dd>
+          <dt>Result</dt><dd><b>Reliably reaches; lifts intermittently, rarely carries.</b> The bottleneck is grasp reliability, not goal distance.</dd>
+          <dt>Improve</dt><dd>More parallel envs for grasp exploration (a 256-env run is training now); ultimately demonstrations / a VLA (Milestone 3).</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section id="results"><div class="wrap">
+  <div class="kicker">Results</div>
+  <h2>What the experiments showed</h2>
+  <p class="lead">Controlled studies on the laptop (RTX 4050, 6&nbsp;GB → 128 envs), fixed seed and budget, compared on weight-independent metrics.</p>
+  <div class="two-card">
+    <div class="rc">
+      <div class="h"><h3>Reach</h3><span class="m">≈ 0.12 m</span></div>
+      <ul>
+        <li>Converges easily; a reward-weight sweep showed weights set <b>priorities</b>, not absolute quality.</li>
+        <li>Position-tracking error around 0.12&nbsp;m end-to-end.</li>
+      </ul>
+    </div>
+    <div class="rc">
+      <div class="h"><h3>Lift</h3><span class="m amb">Bottleneck identified</span></div>
+      <ul>
+        <li>A lift-gate sweep showed only the easy gate sustains lifting.</li>
+        <li>More iterations plateau; a goal curriculum and higher friction don't help.</li>
+        <li>The limiter is <b>grasp reliability</b>, not goal distance. More parallel envs (workstation scale) is the next lever.</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section id="tasks"><div class="wrap">
+  <div class="kicker">Tasks</div>
+  <h2>Custom tasks shipped by this repo</h2>
+  <p class="lead">In addition to every Isaac Lab built-in, each registered as a gymnasium plugin.</p>
+  <div class="tbl">
+    <table>
+      <tr><th>Gym ID</th><th>Description</th></tr>
+      <tr><td><code>Isaac-Reach-Franka-Custom-v0</code></td><td>Franka Reach with a tuned end-effector tracking reward</td></tr>
+      <tr><td><code>Isaac-Lift-Cube-Franka-Custom-v0</code></td><td>Pick-and-place with a raised lift gate</td></tr>
+      <tr><td><code>Isaac-Lift-Cube-Franka-Curriculum-v0</code></td><td>Lift with a receding-goal curriculum</td></tr>
+      <tr><td><code>Isaac-Lift-Cube-Franka-Grasp-v0</code></td><td>Lift with a high-friction cube (grasp reliability)</td></tr>
+    </table>
+  </div>
+</div></section>
+
+<section id="roadmap"><div class="wrap">
+  <div class="kicker">Roadmap</div>
+  <h2>Where it's going</h2>
+  <div class="road">
+    <div class="ms done"><span class="dot"></span><div><b>Milestone 1: Reach</b><p>Converges; end-effector tracking ≈ 0.12&nbsp;m.</p></div></div>
+    <div class="ms now"><span class="dot"></span><div><b>Milestone 2: Pick-and-place</b><p>Pipeline works end-to-end; reliable grasp-and-carry needs more parallel envs.</p></div></div>
+    <div class="ms"><span class="dot"></span><div><b>Milestone 3: Vision-Language-Action</b><p>Run a pretrained VLA in sim; use simulation as a data factory.</p></div></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="row" style="margin-bottom:16px">
+    <a class="lab" href="https://cinapslab.com/" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="#006b19" stroke-width="2.4"/><path d="M8 12.4L11 15.4L16.5 9" stroke="#006b19" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      A CINAPS Lab project <span class="arr">↗</span>
+    </a>
+    <span style="font-size:13px;color:var(--faint)">CINAPS: Control and INtelligent Autonomy for Physical Systems Laboratory</span>
+  </div>
+  <div class="row">
+    <div class="built">Built on
+      <a href="https://developer.nvidia.com/isaac-sim">Isaac Sim</a> ·
+      <a href="https://github.com/isaac-sim/IsaacLab">Isaac Lab</a> ·
+      <a href="https://github.com/leggedrobotics/rsl_rl">rsl_rl</a> ·
+      <a href="https://gymnasium.farama.org/">gymnasium</a>
+    </div>
+    <div><a href="https://github.com/Adityawks28/isaaclab-workspace">github.com/Adityawks28/isaaclab-workspace</a></div>
+  </div>
+</div></footer>
+
+</body>
+</html>

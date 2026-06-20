@@ -1,0 +1,16 @@
+[project]
+name = "lift_franka"
+version = "0.1.0"
+description = "Custom Franka Lift (pick-and-place) task for isaaclab-workspace"
+requires-python = ">=3.10"
+
+# Gymnasium discovers third-party envs via this entry point and calls the
+# function on `import gymnasium`. `__root__` registers ids in the root namespace
+# (so the id stays "Isaac-Lift-Cube-Franka-Custom-v0", unprefixed). This is what
+# lets Isaac Lab's stock train.py/play.py see our task without editing them.
+[project.entry-points."gymnasium.envs"]
+__root__ = "lift_franka:register"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
