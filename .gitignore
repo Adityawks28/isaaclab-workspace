@@ -29,3 +29,5 @@ __pycache__/
 # Python build artifacts (editable installs write these via the bind mount)
 *.egg-info/
 __pycache__/
+.pytest_cache/
+.venv/

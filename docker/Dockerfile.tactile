@@ -1,0 +1,8 @@
+# docker/Dockerfile.tactile — fresh Isaac Sim 5.1 + Isaac Lab main for the tactile data factory.
+# Built on the 16GB box; does NOT touch the existing 4.5.0 setup (docker/container.sh).
+FROM nvcr.io/nvidia/isaac-sim:5.1.0
+ARG ISAACLAB_REF=main
+RUN git clone https://github.com/isaac-sim/IsaacLab.git /isaaclab \
+ && cd /isaaclab && git checkout ${ISAACLAB_REF} \
+ && ln -s /isaac-sim _isaac_sim && ./isaaclab.sh --install
+ENV ACCEPT_EULA=Y PRIVACY_CONSENT=Y OMNI_KIT_ALLOW_ROOT=1
