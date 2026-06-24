@@ -1,0 +1,18 @@
+[project]
+name = "insertion_tactile"
+version = "0.1.0"
+description = "Connector/peg insertion task with contact-force tactile, records LeRobot demos"
+requires-python = ">=3.10"
+
+# Gymnasium discovers the env via this entry point (mirrors lift_franka/reach_franka).
+[project.entry-points."gymnasium.envs"]
+__root__ = "insertion_tactile:register"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+# Exclude tests/ from the installed package (auto-discovery would otherwise see two
+# top-level packages and error).
+[tool.setuptools.packages.find]
+include = ["insertion_tactile*"]
