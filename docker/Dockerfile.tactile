@@ -2,7 +2,20 @@
 # Built on the 16GB box; does NOT touch the existing 4.5.0 setup (docker/container.sh).
 FROM nvcr.io/nvidia/isaac-sim:5.1.0
 ARG ISAACLAB_REF=main
+# Base image defaults to a non-root user; apt + the install need root.
+USER root
+# Env must be set BEFORE ./isaaclab.sh --install:
+#  - ACCEPT_EULA/PRIVACY_CONSENT/OMNI_KIT_ALLOW_ROOT so the Isaac install runs headless as root
+#  - TERM=xterm so the script's tput calls don't abort the build ('unknown terminal type')
+ENV ACCEPT_EULA=Y PRIVACY_CONSENT=Y OMNI_KIT_ALLOW_ROOT=1 TERM=xterm
+# Base Isaac Sim image ships no git/build tools — install them before cloning Isaac Lab.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends git ca-certificates build-essential cmake \
+ && rm -rf /var/lib/apt/lists/*
 RUN git clone https://github.com/isaac-sim/IsaacLab.git /isaaclab \
  && cd /isaaclab && git checkout ${ISAACLAB_REF} \
  && ln -s /isaac-sim _isaac_sim && ./isaaclab.sh --install
-ENV ACCEPT_EULA=Y PRIVACY_CONSENT=Y OMNI_KIT_ALLOW_ROOT=1
+# torch 2.7+cu128 ships libcusparseLt.so.0 but its dir isn't on the loader path, so OGN's
+# dlopen fails and trips a glibc TLS assertion (_dl_add_to_slotinfo idx==0) that crashes the sim.
+# Put the cusparselt lib dir on LD_LIBRARY_PATH (trailing ENV = keeps the expensive layers cached).
+ENV LD_LIBRARY_PATH=/isaac-sim/kit/python/lib/python3.11/site-packages/nvidia/cusparselt/lib:${LD_LIBRARY_PATH}

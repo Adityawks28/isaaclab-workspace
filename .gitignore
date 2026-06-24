@@ -21,6 +21,18 @@ __pycache__/
 *.pyo
 .ipynb_checkpoints/
 
+# --- Isaac data-factory outputs + dev scratch (box-only, not source) ---
+/datasets/
+/videos/
+/_ref/
+/_scout_envs.py
+/_boot_insertion.py
+/_lift_cube_sm_orig.py
+*.log
+/build-isaac.exit
+/boot_result.txt
+/scout_result.txt
+
 # --- Editor / OS noise ---
 .vscode/
 .idea/
