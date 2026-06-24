@@ -288,6 +288,19 @@
         </dl>
       </div>
     </div>
+    <div class="vcard">
+      <video autoplay loop muted playsinline controls poster="media/insertion-tactile-thumb.png"><source src="media/insertion-tactile.mp4" type="video/mp4"></video>
+      <div class="vbody">
+        <div class="vtop"><h3>Insertion · contact-force tactile &nbsp;<span style="font-weight:400;color:var(--mut);font-size:14px">· demonstration data factory</span></h3><span class="tag ok">New</span></div>
+        <dl class="vinfo">
+          <dt>Does</dt><dd>A scripted oracle grasps the peg and carries it to the socket goal, while two fingertip sensors read contact force — the arrows you see in the clip.</dd>
+          <dt>Records</dt><dd>Every step writes a LeRobot frame: wrist + scene RGB (224&times;224), proprioception, a 6-dim contact-force tactile vector, and a 7-dim pose + grip action.</dd>
+          <dt>Workflow</dt><dd>Isaac Sim 5.1 + Isaac Lab <span class="mono">main</span> · scripted state-machine demonstrations (no RL) · sensors read straight from the scene · saved as <span class="mono">.npz</span> per episode.</dd>
+          <dt>Result</dt><dd><b>30-episode, 6,000-frame dataset</b>, contract-compatible with the VLA loader; contact force peaks &asymp; 45&nbsp;N at grasp.</dd>
+          <dt>Why</dt><dd>This is the fix for the Lift plateau: demonstrations to train and fine-tune the VLA, now with touch as well as vision.</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 </div></section>
 
@@ -319,6 +332,14 @@
       <li><b>The VLA model runs on its own process or host.</b> The Isaac Sim container ships only its pinned Python, so the JAX-based model belongs in a separate process or on the workstation/cloud, not wedged into the sim runtime.</li>
     </ul>
   </div>
+  <div class="rc" style="margin-top:18px;border-color:#cfe9d4;background:var(--green-bg)">
+    <div class="h"><h3>Milestone 3b: Insertion + tactile data factory (online)</h3><span class="m">30 eps · 6k frames</span></div>
+    <ul>
+      <li><b>A demonstration data factory now runs on the workstation.</b> A scripted oracle performs contact-rich pick-and-place in a new Franka insertion task (Isaac Sim 5.1) and records every step.</li>
+      <li><b>Vision <em>and</em> touch, in the VLA's format.</b> Each frame carries wrist + scene RGB, proprioception, a 6-dim fingertip contact-force vector, and a 7-dim action, written to the LeRobot contract. Contact force peaks &asymp; 45&nbsp;N at grasp.</li>
+      <li>This dataset is what feeds VLA fine-tuning — the demonstrations the Lift study identified as the missing piece.</li>
+    </ul>
+  </div>
 </div></section>
 
 <section id="tasks"><div class="wrap">
@@ -333,6 +354,7 @@
       <tr><td><code>Isaac-Lift-Cube-Franka-Curriculum-v0</code></td><td>Lift with a receding-goal curriculum</td></tr>
       <tr><td><code>Isaac-Lift-Cube-Franka-Grasp-v0</code></td><td>Lift with a high-friction cube (grasp reliability)</td></tr>
       <tr><td><code>Isaac-Lift-Cube-Franka-Camera-v0</code></td><td>Lift with a 224&times;224 wrist RGB camera (vision front-end for a VLA)</td></tr>
+      <tr><td><code>Isaac-Insertion-Franka-Tactile-v0</code></td><td>Franka peg insertion with dual fingertip contact-force tactile + wrist/scene RGB; records LeRobot demos (Isaac Sim 5.1)</td></tr>
     </table>
   </div>
 </div></section>
@@ -343,7 +365,7 @@
   <div class="road">
     <div class="ms done"><span class="dot"></span><div><b>Milestone 1: Reach</b><p>Converges; end-effector tracking ≈ 0.12&nbsp;m.</p></div></div>
     <div class="ms now"><span class="dot"></span><div><b>Milestone 2: Pick-and-place</b><p>Pipeline works end-to-end; reliable grasp-and-carry needs more parallel envs.</p></div></div>
-    <div class="ms now"><span class="dot"></span><div><b>Milestone 3: Vision-Language-Action</b><p>Started (3a): the camera vision front-end renders RGB in sim, verified. The VLA model runs on its own process or host. Next: drive Octo, then fine-tune on sim demonstrations.</p></div></div>
+    <div class="ms now"><span class="dot"></span><div><b>Milestone 3: Vision-Language-Action</b><p>In progress. 3a — the camera vision front-end renders RGB in sim, verified. 3b — an insertion + contact-force tactile data factory records LeRobot demonstrations (30 episodes; vision + touch) on Isaac Sim 5.1. Next: fine-tune the VLA on these demonstrations.</p></div></div>
   </div>
 </div></section>
 
